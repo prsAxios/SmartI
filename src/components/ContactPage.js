@@ -4,6 +4,14 @@ const ContactPage = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCaptchaVerified, setIsCaptchaVerified] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    contactNumber: "",
+    message: "",
+    organizationName: "",
+    email: ""
+  });
+  const [formErrors, setFormErrors] = useState({});
 
   useEffect(() => {
     if (isModalOpen) {
@@ -21,16 +29,49 @@ const ContactPage = () => {
     setIsModalOpen(false);
   };
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const validateForm = () => {
+    let errors = {};
+    if (!formData.name) errors.name = "Name is required";
+    if (!formData.contactNumber) errors.contactNumber = "Contact number is required";
+    if (!formData.message) errors.message = "Message is required";
+    if (!formData.organizationName) errors.organizationName = "Organization name is required";
+    if (!formData.email) errors.email = "Email is required";
+    return errors;
+  };
+
   const handleFormSubmit = (e) => {
     e.preventDefault();
+    const errors = validateForm();
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      return; // If there are validation errors, don't submit the form
+    }
+
     if (!isCaptchaVerified) {
       alert("Please complete the captcha before submitting.");
       return;
     }
+
     setShowSuccessModal(true);
     setTimeout(() => {
       setShowSuccessModal(false);
-      e.target.reset();
+      setFormData({
+        name: "",
+        contactNumber: "",
+        message: "",
+        organizationName: "",
+        email: ""
+      });
+      setFormErrors({});
     }, 5000);
   };
 
@@ -46,17 +87,73 @@ const ContactPage = () => {
 
           <form className="p-6 mt-8 w-full max-w-4xl grid grid-cols-1 sm:grid-cols-2 gap-6" onSubmit={handleFormSubmit}>
             <div className="flex flex-col gap-6">
-              <input type="text" placeholder="Your Name" className="w-full p-3 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-2xl" />
-              <input type="number" placeholder="Contact Number" className="w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none -moz-appearance-none -webkit-appearance-none" />
-              <textarea placeholder="Message" rows="4" className="w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+              <input
+                type="text"
+                name="name"
+                value={formData.name}
+                onChange={handleInputChange}
+                placeholder="Your Name"
+                className={`w-full p-3 bg-gray-700 text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 rounded-2xl ${formErrors.name ? "border-red-500" : ""}`}
+              />
+              {formErrors.name && <p className="text-red-500 text-sm">{formErrors.name}</p>}
+
+              <input
+                type="number"
+                name="contactNumber"
+                value={formData.contactNumber}
+                onChange={handleInputChange}
+                placeholder="Contact Number"
+                className={`w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.contactNumber ? "border-red-500" : ""}`}
+              />
+              {formErrors.contactNumber && <p className="text-red-500 text-sm">{formErrors.contactNumber}</p>}
+
+              <textarea
+                name="message"
+                value={formData.message}
+                onChange={handleInputChange}
+                placeholder="Message"
+                rows="4"
+                className={`w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.message ? "border-red-500" : ""}`}
+              />
+              {formErrors.message && <p className="text-red-500 text-sm">{formErrors.message}</p>}
             </div>
 
             <div className="flex flex-col gap-6">
-              <input type="text" placeholder="Organization Name" className="w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
-              <input type="email" placeholder="Email ID" className="w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              <input
+                type="text"
+                name="organizationName"
+                value={formData.organizationName}
+                onChange={handleInputChange}
+                placeholder="Organization Name"
+                className={`w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.organizationName ? "border-red-500" : ""}`}
+              />
+              {formErrors.organizationName && <p className="text-red-500 text-sm">{formErrors.organizationName}</p>}
+
+              <input
+                type="email"
+                name="email"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Email ID"
+                className={`w-full p-3 bg-gray-700 rounded-2xl text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 ${formErrors.email ? "border-red-500" : ""}`}
+              />
+              {formErrors.email && <p className="text-red-500 text-sm">{formErrors.email}</p>}
+
               <div className="flex flex-col gap-6">
-                <button type="button" onClick={() => setIsModalOpen(true)} className="w-[40%] bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl font-bold">Verify Captcha</button>
-                <button type="submit" className={`w-[40%] ${isCaptchaVerified ? "bg-red-600 hover:bg-blue-700" : "bg-gray-500 cursor-not-allowed"} text-white py-3 rounded-2xl font-bold`} disabled={!isCaptchaVerified}>Submit</button>
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="w-[40%] bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-2xl font-bold"
+                >
+                  Verify Captcha
+                </button>
+                <button
+                  type="submit"
+                  className={`w-[40%] ${isCaptchaVerified ? "bg-red-600 hover:bg-blue-700" : "bg-gray-500 cursor-not-allowed"} text-white py-3 rounded-2xl font-bold`}
+                  disabled={!isCaptchaVerified}
+                >
+                  Submit
+                </button>
               </div>
             </div>
           </form>
@@ -68,7 +165,9 @@ const ContactPage = () => {
           <div className="bg-white rounded-lg p-6 text-center w-96">
             <h2 className="text-lg font-bold mb-4">Complete the Captcha</h2>
             <Captcha onVerify={handleCaptchaSuccess} />
-            <button onClick={() => setIsModalOpen(false)} className="mt-4 text-red-600">Cancel</button>
+            <button onClick={() => setIsModalOpen(false)} className="mt-4 text-red-600">
+              Cancel
+            </button>
           </div>
         </div>
       )}
@@ -114,8 +213,19 @@ const Captcha = ({ onVerify }) => {
       <div className="mb-4 bg-gray-100 text-black p-3 rounded-lg text-lg font-mono">
         {captchaText}
       </div>
-      <input type="text" value={userInput} onChange={(e) => setUserInput(e.target.value)} placeholder="Enter captcha text" className="w-full p-2 border border-gray-300 rounded" />
-      <button onClick={handleVerify} className="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded">Verify</button>
+      <input
+        type="text"
+        value={userInput}
+        onChange={(e) => setUserInput(e.target.value)}
+        placeholder="Enter captcha text"
+        className="w-full p-2 border border-gray-300 rounded"
+      />
+      <button
+        onClick={handleVerify}
+        className="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded"
+      >
+        Verify
+      </button>
     </div>
   );
 };
